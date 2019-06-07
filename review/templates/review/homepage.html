@@ -1,0 +1,147 @@
+{% extends "review/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="accordion" id="accordionExample">
+    <div class="card">
+        {% for cat in categories %}
+        <!-- <div class="card-header" id="headingOne">
+            <h2 class="mb-0"> -->
+        <button class="btn btn-link mb-0 card-header" id="headingOne" data-toggle="collapse"
+            data-target="#a{{cat.category.id}}" aria-expanded="true" aria-controls="a{{cat.category.id}}">
+            <h1>
+                <span class="fa fa-cutlery" aria-hidden="true">
+                    &nbsp&nbsp{{cat.category.description}}
+                </span>
+            </h1>
+        </button>
+        <!-- </h2>
+        </div> -->
+
+        <div id="a{{cat.category.id}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+            <div class="card-body">
+                {% for restaurant in cat.restaurants %}
+                <div class="container">
+                    <div class="row">
+                        <div class="well">
+                            <div class="list-group">
+                                <a href="{% url 'restaurant-content' restaurant.restaurant.id %}"
+                                    class="list-group-item" style="width: 70vw;">
+                                    <div class="media col-md-3">
+                                        <figure class="pull-left">
+                                            <img class="media-object img-rounded img-responsive"
+                                                src="{% static 'review/restaurant/' %}{{restaurant.restaurant.id}}.jpg"
+                                                alt={{restaurant.restaurant.id}} style="padding:30px 0 0 0">
+                                        </figure>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h2 class="list-group-item-heading" style="padding:30px 0 20px 0">
+                                            {{restaurant.restaurant.id}} </h2>
+                                        <h4 class="list-group-item-text"> {{restaurant.restaurant.address}}
+                                        </h4>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <h2> {{restaurant.reviews_count}} <small> reviews </small></h2>
+                                        {% if restaurant.reviews_avg_rating == 'NIL' %}
+
+
+                                        <p>No rating yet</p>
+                                        {% else %}
+                                        <div class="text-warning stars">
+
+                                            {% if restaurant.reviews_avg_rating >= 0 %}
+                                            <!-- for the 1st star -->
+                                            {% if restaurant.reviews_avg_rating < 1 %}
+                                            <i class="fa fa-star-o"></i>
+                                            {% else %}
+                                            {% if restaurant.reviews_avg_rating < 2 %}
+                                            <i class="fa fa-star-half-o"></i>
+                                            {% else %}
+                                            <i class="fa fa-star"></i>
+                                            {% endif %}
+                                            {% endif %}
+                                            <!-- for the 2nd star -->
+                                            {% if restaurant.reviews_avg_rating < 3 %}
+                                            <i class="fa fa-star-o"></i>
+                                            {% else %}
+                                            {% if restaurant.reviews_avg_rating < 4 %}
+                                            <i class="fa fa-star-half-o"></i>
+                                            {% else %}
+                                            <i class="fa fa-star"></i>
+                                            {% endif %}
+                                            {% endif %}
+                                            <!-- for the 3rd star -->
+                                            {% if restaurant.reviews_avg_rating < 5 %}
+                                            <i class="fa fa-star-o"></i>
+                                            {% else %}
+                                            {% if restaurant.reviews_avg_rating < 6 %}
+                                            <i class="fa fa-star-half-o"></i>
+                                            {% else %}
+                                            <i class="fa fa-star"></i>
+                                            {% endif %}
+                                            {% endif %}
+                                            <!-- for the 4th star -->
+                                            {% if restaurant.reviews_avg_rating < 7 %}
+                                            <i class="fa fa-star-o"></i>
+                                            {% else %}
+                                            {% if restaurant.reviews_avg_rating < 8 %}
+                                            <i class="fa fa-star-half-o"></i>
+                                            {% else %}
+                                            <i class="fa fa-star"></i>
+                                            {% endif %}
+                                            {% endif %}
+                                            <!-- for the 5th star -->
+                                            {% if restaurant.reviews_avg_rating < 9 %}
+                                            <i class="fa fa-star-o"></i>
+                                            {% else %}
+                                            {% if restaurant.reviews_avg_rating < 10 %}
+                                            <i class="fa fa-star-half-o"></i>
+                                            {% else %}
+                                            <i class="fa fa-star"></i>
+                                            {% endif %}
+                                            {% endif %}
+                                            {% endif %}
+                                        </div>
+                                        <p> Average {{restaurant.reviews_avg_rating}} <small> / </small> 10 </p>
+                                        {% endif %}
+                                    </div>
+                                </a>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+
+
+
+
+<style>
+    a.list-group-item {
+        height: auto;
+        min-height: 220px;
+    }
+
+    a.list-group-item.active small {
+        color: #fff;
+    }
+
+    .stars {
+        margin: 20px auto 1px;
+        width: 100%;
+    }
+</style>
+
+
+
+
+
+{% endblock %}
