@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.db.models import Avg, Count, Sum
 from django.contrib import messages
@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 
 from .models import *
 from .forms import UserRegisterForm
+from django.views.decorators.csrf import csrf_exempt
 
 
 # Create your views here.
@@ -64,7 +65,7 @@ def register(request):
     return render(request, template, context_data)
 
 
-def restaurant_content(request, rest_id):
+def restaurant_content(request, cat_id, rest_id):
     template = 'review/restaurant_content.html'
     r = Restaurant.objects.get(id=rest_id)
     reviews = Review.objects.filter(restaurant=rest_id)
@@ -125,3 +126,22 @@ def restaurant_list(request, cat_id):
         'avg_rating': avg_rating,
     }
     return render(request, template, context_data)
+
+def search_result(request):
+    template = 'review/search_result.html'  
+
+    query = request.GET.get('q')
+    
+    result = []
+    
+    try:
+        r = Restaurant.objects.get(id__iexact=query)
+        result.append(r)
+    except Restaurant.DoesNotExist:
+        result = Restaurant.objects.all()
+        
+    context = {
+        'result': result,
+    }
+    
+    return render(request, template, context)

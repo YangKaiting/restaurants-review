@@ -9,6 +9,8 @@ from django.contrib.auth.models import User
 
 # 1
 class Category(models.Model):
+    class Meta:
+        verbose_name_plural = "categories"
     id = models.CharField(max_length=20, primary_key=True)
     description = models.CharField(max_length=255)
 
@@ -41,6 +43,8 @@ class Review(models.Model):
 # 4
 class LikeForReview(models.Model):
     # similar to composite primary key
+    class Meta:
+        verbose_name_plural = "Like For Reviews"
     review = models.ForeignKey(Review, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -60,5 +64,7 @@ class Comment(models.Model):
 # 6
 class LikeForComment(models.Model):
     # similar to composite primary key
+    class Meta:
+        verbose_name_plural = "Like For Comments"
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

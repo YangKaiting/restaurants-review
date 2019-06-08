@@ -1,0 +1,18 @@
+{% extends "review/base.html" %}
+{% block content %}
+<ul>
+    {% if result|length == 1 %}
+    <h2>Restaurant found:</h2>
+    {% endif %}
+
+    {% if result|length > 1 %}
+    <h2>Restaurant not found but here are others:</h2>
+    {% endif %}
+
+    {% for r in result %}
+    <li>
+        <a href="{% url 'restaurant-content' r.category.id r.id %}">{{ r.id }}</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock content %}
