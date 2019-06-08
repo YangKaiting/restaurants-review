@@ -118,24 +118,6 @@ def restaurant_content(request, cat_id, rest_id):
     return render(request, template, context_data)
 
 
-def restaurant_list(request, cat_id):
-    template = 'review/restaurant_list.html'
-    restaurants = Restaurant.objects.filter(category=cat_id).prefetch_related('review_set').annotate(count=Count('review')).annotate(avg_rating=Avg('review__rate'))
-    
-    reviews = Review.objects.select_related('restaurant').filter(restaurant__category=cat_id).values('restaurant')\
-    .annotate(count=Count('restaurant')).annotate(avg_rating=Avg('rate'))
-
-    count = reviews.count()
-    avg_rating = (reviews.aggregate(Avg('rate')))['rate__avg']
-
-    context_data = {
-        'restaurants': restaurants,
-        'reviews': reviews,
-        'count': count,
-        'avg_rating': avg_rating,
-    }
-    return render(request, template, context_data)
-
 def search_result(request):
     template = 'review/search_result.html'  
 
