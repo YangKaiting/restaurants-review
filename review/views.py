@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from django.http import HttpResponseRedirect, JsonResponse
 from django.db.models import Avg, Count, Sum
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -97,6 +97,15 @@ def restaurant_content(request, cat_id, rest_id):
                 description = request.POST.get('description'),
                 restaurant = r,
                 rate = request.POST.get('rating'),
+            )
+            return HttpResponseRedirect(request.path_info)
+        if request.POST['action'] == 'submit-comment-for-review':
+            are = request.POST.get('review')
+            print('what', are)
+            Comment.objects.create(
+                user=request.user,
+                description = request.POST.get('comment-description'),
+                review = request.POST.get('review'),
             )
             return HttpResponseRedirect(request.path_info)
     
