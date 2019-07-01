@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.db.models import Avg, Count, Sum
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -79,36 +79,6 @@ def restaurant_content(request, cat_id, rest_id):
             'comments_on_review': Comment.objects.filter(review=review.id),
         })
     
-    if request.method == 'POST':
-        if request.POST['action'] == 'like-review':
-            reviewID = request.POST.get('reviewID')
-            if LikeForReview.objects.filter(review=reviewID,user=request.user):
-                LikeForReview.objects.filter(review=reviewID,user=request.user).delete()
-                return HttpResponseRedirect(request.path_info)
-            else:
-                LikeForReview.objects.create(
-                    review=Review.objects.get(id=reviewID),
-                    user=request.user,
-                )
-                return HttpResponseRedirect(request.path_info)
-        if request.POST['action'] == 'submit-review':
-            Review.objects.create(
-                user=request.user,
-                description = request.POST.get('description'),
-                restaurant = r,
-                rate = request.POST.get('rating'),
-            )
-            return HttpResponseRedirect(request.path_info)
-        if request.POST['action'] == 'submit-comment-for-review':
-            are = request.POST.get('review')
-            print('what', are)
-            Comment.objects.create(
-                user=request.user,
-                description = request.POST.get('comment-description'),
-                review = request.POST.get('review'),
-            )
-            return HttpResponseRedirect(request.path_info)
-    
     context_data = {
         'restaurant': {
             'rest': r,
@@ -117,6 +87,89 @@ def restaurant_content(request, cat_id, rest_id):
     }
     return render(request, template, context_data)
 
+
+def submit_a_review(request):
+    # template = 'review/submit_review_template.html'
+    if request.method == 'POST':
+        # if request.POST['action'] == 'submit-review':
+        print("description is :", request.POST.get('description'))
+        print("rating is :", request.POST.get('rating'))
+        print("------------------------------")
+        r = Restaurant.objects.get(id=request.POST.get('restaurant'))
+        print("omg is this a restaruatn? :", r)
+        Review.objects.create(
+            user=request.user,
+            description = request.POST.get('description'),
+            restaurant = r,
+            rate = request.POST.get('rating'),
+        )
+        context_data = {}
+        return JsonResponse(context_data, status=200)
+
+
+def update_review_likes(request):
+    # template = "review/display_review_template.html"
+    if request.method == 'POST':
+        reviewID = request.POST.get('reviewID')
+        if LikeForReview.objects.filter(review=reviewID,user=request.user):
+            LikeForReview.objects.filter(review=reviewID,user=request.user).delete()
+        else:
+            LikeForReview.objects.create(
+                review=Review.objects.get(id=reviewID),
+                user=request.user,
+            )
+    context_data = {
+    }
+    return JsonResponse(context_data, status=200)
+
+    # reviews = Review.objects.filter(restaurant="The Eastern Willow")
+    
+    # review_plus_likes_count=[]
+    # for review in reviews:
+    #     review_plus_likes_count.append({
+    #         'review': review,
+    #         'likes_count_for_review': LikeForReview.objects.filter(review=review.id).count(),
+    #         'is_review_liked_by_user': LikeForReview.objects.filter(review=review.id,user=request.user).exists(),
+    #         'comments_on_review': Comment.objects.filter(review=review.id),
+    #     })
+    # context_data = {
+    #     'restaurant': {
+    #         'reviews': review_plus_likes_count,
+    #     }
+    # }
+    # return render(request, template, context_data)
+
+            
+def comment_for_review(request):
+    template = 'review/display_review_template.html'
+    # if request.method == 'POST':
+    #     if request.POST['action'] == 'submit-review':
+    #         Review.objects.create(
+    #             user=request.user,
+    #             description = request.POST.get('description'),
+    #             restaurant = r,
+    #             rate = request.POST.get('rating'),
+    #         )
+    #         return HttpResponseRedirect(request.path_info)
+    if request.method == 'POST':
+        for review in reviews:
+            if request.POST['action'] == 'submit-comment-for-review-'+str(review.id):
+                this_review = request.POST.get('this-review')
+                print('what', this_review)
+                Comment.objects.create(
+                    user=request.user,
+                    description = request.POST.get('comment-description'),
+                    review = this_review,
+                )
+                return HttpResponseRedirect(request.path_info)
+    
+    context_data = {
+        'restaurant': {
+            'rest': r,
+            'reviews': review_plus_likes_count,
+        }
+    }
+    return render(request, template, context_data)
 
 def search_result(request):
     template = 'review/search_result.html'  

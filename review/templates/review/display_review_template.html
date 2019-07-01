@@ -1,0 +1,139 @@
+<div class="card" id="review-section">
+    {% for r in reviews %}
+    <div class="card-body">
+        <div class="row">
+            <div class="col-sm-3 col-md-2">
+                <img src="https://image.ibb.co/jw55Ex/def_face.jpg" class="img img-rounded img-fluid" />
+                <p class="text-secondary text-center">15 Minutes Ago</p>
+            </div>
+            <div class="col-sm-9 col-md-10">
+                <p>
+                    <a class="float-left" href=""><strong>{{r.review.user}}
+                        </strong> </a>
+                    <span class="float-right" id="refresh-like">{{r.likes_count_for_review}}
+                        {% if r.is_review_liked_by_user %}
+                        <i class="text-warning fa fa-heart"></i>
+                        {% else %}
+                        <i class="fa fa-heart"></i>
+                        {% endif %}
+                    </span>
+                </p>
+
+                <div class="clearfix"></div>
+                <span class="">{{r.review.rate}} <i class="text-warning fa fa-thumbs-up"></i></span>
+                <p>{{r.review.description}}</p>
+                <p>
+                    <!-- for reply to review -->
+                    <div class="" style="margin-top:40px;">
+                        <div class="">
+                            <div class="">
+                                <div class="text-right">
+                                    <a class="open-comment-box float-right btn btn-outline-primary ml-2"
+                                        id="open-comment-box-{{r.review.id}}" href="#comments-anchor"
+                                        value={{r.review.id}}><i class="fa fa-reply"></i>
+                                        Reply</a>
+                                </div>
+
+                                <div class="row" id="post-comment-box-{{r.review.id}}" style="display:none;">
+                                    <div class="col-md-12">
+                                        <form accept-charset="UTF-8" action="" method="post">
+                                            {% csrf_token %}
+                                            <input id="review-hidden" name="this-review" value={{r.review}}
+                                                type="hidden">
+                                            <textarea class="form-control animated" cols="50" id="new-comment"
+                                                style="margin-bottom: 5px" name="comment-description"
+                                                placeholder="Enter your comment here..." rows="5"></textarea>
+
+                                            <div class="text-right">
+                                                <a class="btn btn-danger btn-sm close-comment-box" href="#"
+                                                    id="close-comment-box-{{r.review.id}}" value={{r.review.id}}
+                                                    style="display:none; margin-right: 10px;">
+                                                    <span class="glyphicon glyphicon-remove"></span>Cancel</a>
+
+                                                <button class="btn btn-success btn-sm" name="action" type="submit"
+                                                    value="submit-comment-for-review-{{r.review.id}}">Submit</button>
+
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- for liking a review -->
+                    <form class="like-a-review float-right" id="like-a-review-{{r.review.id}}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="reviewID" id="reviewID" value={{r.review.id}} />
+                        <button class="btn text-white btn-danger" name="action" value="like-review"><i
+                                class="fa fa-heart"></i>
+                            Like</button>
+                    </form>
+                </p>
+            </div>
+        </div>
+        {% for comment in r.comments_on_review %}
+        <div class="card card-inner">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-3 col-md-2">
+                        <img src="https://image.ibb.co/jw55Ex/def_face.jpg" class="img img-rounded img-fluid" />
+                        <p class="text-secondary text-center">15 Minutes Ago</p>
+                    </div>
+                    <div class="col-sm-9 col-md-10">
+                        <p><a href=""><strong>{{ comment.user }}</strong></a></p>
+                        <p>{{ comment.description }}</p>
+                        <p>
+                            <a class="float-right btn btn-outline-primary ml-2"> <i class="fa fa-reply"></i>
+                                Reply</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <!-- for reply on comments -->
+            <div class="card card-inner" style="margin: 0 15px 15px 45px">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-3 col-md-2">
+                            <img src="https://image.ibb.co/jw55Ex/def_face.jpg" class="img img-rounded img-fluid" />
+                            <p class="text-secondary text-center">15 Minutes Ago</p>
+                        </div>
+                        <div class="col-sm-9 col-md-10">
+                            <p><a href=""><strong>{{ comment.user }}</strong></a></p>
+                            <p>{{ comment.description }}</p>
+                            <p>
+                                <a class="float-right btn btn-outline-primary ml-2"> <i class="fa fa-reply"></i>
+                                    Reply</a>
+                                <!-- <a class="float-right btn text-white btn-danger"> <i class="fa fa-heart"></i> Like</a> -->
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% empty %}
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).on('submit', '.like-a-review', function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '/update-review-likes/',
+            data: {
+                reviewID: $(this).find('input[name=reviewID]').val(),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function () {
+                $('#review-section').load(" #review-section");
+            }
+        });
+    });
+</script>
