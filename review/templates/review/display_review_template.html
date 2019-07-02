@@ -36,9 +36,9 @@
 
                                 <div class="row" id="post-comment-box-{{r.review.id}}" style="display:none;">
                                     <div class="col-md-12">
-                                        <form accept-charset="UTF-8" action="" method="post">
+                                        <form id="submit-a-comment" accept-charset="UTF-8" action="" method="post">
                                             {% csrf_token %}
-                                            <input id="review-hidden" name="this-review" value={{r.review}}
+                                            <input id="review-hidden" name="this-review" value={{r.review.id}}
                                                 type="hidden">
                                             <textarea class="form-control animated" cols="50" id="new-comment"
                                                 style="margin-bottom: 5px" name="comment-description"
@@ -136,4 +136,23 @@
             }
         });
     });
+
+    $(document).on('submit', '#submit-a-comment', function (e) {
+        let review_id = $(this).attr('value');
+        console.log("okok", review_id)
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '/comment-on-review/',
+            data: {
+                description: $(this).find('textarea[name=comment-description]').val(),
+                review: $(this).find('input[name=this-review]').val(),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function () {
+                $('#review-section').load(location.href + " #review-section");
+            }
+        });
+    });
+
 </script>
