@@ -78,14 +78,10 @@ def restaurant_content(request, cat_id, rest_id):
         comments = Comment.objects.filter(review=review.id)
         
         for comment in comments:
-            if ActionForComment.objects.filter(comment=comment.id, user=request.user.id).exists():
-                is_comment_liked_by_user = ActionForComment.objects.get(comment=comment.id, user=request.user.id).like
-            else:
-                is_comment_liked_by_user = False
             comments_plus_likes_count.append({
                 'comment': comment,
-                'likes_count_for_comment': ActionForComment.objects.filter(comment=comment.id, like=True).count(),
-                'is_comment_liked_by_user': is_comment_liked_by_user,
+                'likes_count_for_comment': LikeForComment.objects.filter(comment=comment.id).count(),
+                'is_comment_liked_by_user': LikeForComment.objects.filter(comment=comment.id, user=request.user).exists(),
                 'comments_on_comment': ActionForComment.objects.filter(comment=comment.id),
             })
             
@@ -136,15 +132,10 @@ def update_review_likes(request):
 def update_comment_likes(request):
     if request.method == 'POST':
         commentID = request.POST.get('commentID')
-        if ActionForComment.objects.filter(comment=commentID,user=request.user).exists():
-            obj = ActionForComment.objects.get(comment=commentID,user=request.user)
-            this_like = obj.like
-            # print("b4 :",this_like)
-            obj.like = not this_like
-            obj.save()
-            # print("after but inside :",this_like)
+        if LikeForComment.objects.filter(comment=commentID,user=request.user):
+            LikeForComment.objects.filter(comment=commentID,user=request.user).delete()
         else:
-            ActionForComment.objects.create(comment=Comment.objects.get(pk=commentID),user=request.user,like=True)
+            LikeForComment.objects.create(comment=Comment.objects.get(pk=commentID),user=request.user)
     context_data = {}
     # print("after :", ActionForComment.objects.get(comment=commentID,user=request.user).like)
     return JsonResponse(context_data, status=200)
@@ -166,17 +157,12 @@ def comment_on_review(request):
 def comment_on_comment(request):
     if request.method == 'POST':
         this_comment=Comment.objects.get(id=request.POST.get('comment'))
-        print('what', this_comment)
-        if ActionForComment.objects.filter(comment=this_comment, user=request.user).exists():
-            obj = ActionForComment.objects.get(comment=this_comment,user=request.user)   
-            obj.description = request.POST.get('description')
-            obj.save()                                 
-        else:            
-            ActionForComment.objects.create(
-                user=request.user,
-                description = request.POST.get('description'),
-                comment = this_comment,
-            )
+        print('what', this_comment)          
+        ActionForComment.objects.create(
+            user=request.user,
+            description = request.POST.get('description'),
+            comment = this_comment,
+        )
     context_data = {}
     return JsonResponse(context_data, status=200)
 

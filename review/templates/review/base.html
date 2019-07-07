@@ -38,16 +38,15 @@
     <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
         <!-- Brand/logo -->
         <div class="navbar-brand">
-            <img src="{% static "my_michelin_app/icon/logo.png" %}" alt="My Michelin Guide" style="width:100px;">
+                <a class="nav-link" href="{% url 'homepage' %}">
+                    <img src="{% static "review/logo/logo.png" %}" alt="Home" style="width:100px;">
+                </a>
         </div>
 
         <div class="collapse navbar-collapse" id="navbarToggle">
             <div class="navbar-nav mr-auto">
                 <!-- Links -->
                 <ul class="navbar-nav d-flex justify-content-center align-items-center>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'homepage' %}">Home</a>
-                    </li>
                     <li class="nav-item">
                         <form method="GET" action="{% url 'search-result' %}" class="form-inline">
                             <input name="q" value="{{request.GET.q}}" class="form-control mr-sm-2" type="search" placeholder="Restaurant Name" aria-label="Restaurant Name">
