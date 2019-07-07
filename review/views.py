@@ -69,14 +69,27 @@ def restaurant_content(request, cat_id, rest_id):
     template = 'review/restaurant_content.html'
     r = Restaurant.objects.get(id=rest_id)
     reviews = Review.objects.filter(restaurant=rest_id)
-    
+
+    comments_plus_likes_count = []        
     review_plus_likes_count=[]
+    
     for review in reviews:
+        
+        comments = Comment.objects.filter(review=review.id)
+        
+        for comment in comments:
+            comments_plus_likes_count.append({
+                'comment': comment,
+                'likes_count_for_comment': ActionForComment.objects.filter(comment=comment.id, like=True).count(),
+                'is_comment_liked_by_user': ActionForComment.objects.get(comment=comment.id, user=request.user.id).like,
+                'comments_on_comment': ActionForComment.objects.filter(comment=comment.id),
+            })
+            
         review_plus_likes_count.append({
             'review': review,
             'likes_count_for_review': LikeForReview.objects.filter(review=review.id).count(),
             'is_review_liked_by_user': LikeForReview.objects.filter(review=review.id,user=request.user).exists(),
-            'comments_on_review': Comment.objects.filter(review=review.id),
+            'comments_on_review': comments_plus_likes_count,
         })
     
     context_data = {
@@ -115,6 +128,24 @@ def update_review_likes(request):
     context_data = {}
     return JsonResponse(context_data, status=200)
 
+
+def update_comment_likes(request):
+    if request.method == 'POST':
+        commentID = request.POST.get('commentID')
+        obj = ActionForComment.objects.get(comment=commentID,user=request.user)
+        if obj:
+            this_like = obj.like
+            print("before: ",this_like)            
+            this_like = not this_like    
+            print("after: ",this_like)
+            # if this_like == 0:
+            #     this_like = False;
+            # else: 
+            #     this_like = True;
+            obj.save()
+    context_data = {}
+    return JsonResponse(context_data, status=200)
+    
             
 def comment_on_review(request):
     if request.method == 'POST':
