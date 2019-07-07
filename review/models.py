@@ -70,5 +70,10 @@ class ActionForComment(models.Model):
         verbose_name_plural = "Action For Comments"
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    like = models.BooleanField(default=False)
     description = models.CharField(max_length=255)
+
+class LikeForComment(models.Model):
+    class Meta:
+        verbose_name_plural = "Action For Comments"
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
