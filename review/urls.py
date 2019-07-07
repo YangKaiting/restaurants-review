@@ -14,4 +14,5 @@ urlpatterns = [
     re_path(r'^update-comment-likes/$',views.update_comment_likes, name="update-comment-likes"),
     re_path(r'^submit-a-review/$',views.submit_a_review, name="submit-a-review"),
     re_path(r'^comment-on-review/$',views.comment_on_review, name="comment-on-review"),
+    re_path(r'^comment-on-comment/$',views.comment_on_comment, name="comment-on-comment"),
 ]
