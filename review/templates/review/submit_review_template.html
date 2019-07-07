@@ -26,7 +26,7 @@
                             <a class="btn btn-danger" href="#" id="close-review-box"
                                 style="display:none; margin-right: 10px;">
                                 <span class="glyphicon glyphicon-remove"></span>Cancel</a>
-                            <button class="btn btn-success" name="action" type="submit"
+                            <button class="btn btn-success" id="btn-submit-review" name="action" type="submit" disabled
                                 value="submit-review">Submit</button>
                         </div>
                     </form>
@@ -139,7 +139,8 @@
                     var i;
                     i = e(this).data("star-rating");
                     if (!i) {
-                        e(this).data("star-rating", i = new n(e(this), r))
+                        e(this).data("star-rating", i = new n(e(this), r));
+                        
                     }
                     if (typeof r === "string") {
                         return i[r].apply(i, t)
@@ -187,6 +188,12 @@
 
         $('.starrr').on('starrr:change', function (e, value) {
             ratingsField.val(value);
+            if (value == null) {
+                $('#btn-submit-review').attr('disabled','disabled');
+            }
+            else {
+                $('#btn-submit-review').removeAttr('disabled');
+            }
         });
     });
 </script>

@@ -70,18 +70,22 @@ def restaurant_content(request, cat_id, rest_id):
     r = Restaurant.objects.get(id=rest_id)
     reviews = Review.objects.filter(restaurant=rest_id)
 
-    comments_plus_likes_count = []        
+            
     review_plus_likes_count=[]
     
     for review in reviews:
-        
+        comments_plus_likes_count = []
         comments = Comment.objects.filter(review=review.id)
         
         for comment in comments:
+            if ActionForComment.objects.filter(comment=comment.id, user=request.user.id).exists():
+                is_comment_liked_by_user = ActionForComment.objects.get(comment=comment.id, user=request.user.id).like
+            else:
+                is_comment_liked_by_user = False
             comments_plus_likes_count.append({
                 'comment': comment,
                 'likes_count_for_comment': ActionForComment.objects.filter(comment=comment.id, like=True).count(),
-                'is_comment_liked_by_user': ActionForComment.objects.get(comment=comment.id, user=request.user.id).like,
+                'is_comment_liked_by_user': is_comment_liked_by_user,
                 'comments_on_comment': ActionForComment.objects.filter(comment=comment.id),
             })
             
@@ -132,18 +136,17 @@ def update_review_likes(request):
 def update_comment_likes(request):
     if request.method == 'POST':
         commentID = request.POST.get('commentID')
-        obj = ActionForComment.objects.get(comment=commentID,user=request.user)
-        if obj:
+        if ActionForComment.objects.filter(comment=commentID,user=request.user).exists():
+            obj = ActionForComment.objects.get(comment=commentID,user=request.user)
             this_like = obj.like
-            print("before: ",this_like)            
-            this_like = not this_like    
-            print("after: ",this_like)
-            # if this_like == 0:
-            #     this_like = False;
-            # else: 
-            #     this_like = True;
+            # print("b4 :",this_like)
+            obj.like = not this_like
             obj.save()
+            # print("after but inside :",this_like)
+        else:
+            ActionForComment.objects.create(comment=Comment.objects.get(pk=commentID),user=request.user,like=True)
     context_data = {}
+    # print("after :", ActionForComment.objects.get(comment=commentID,user=request.user).like)
     return JsonResponse(context_data, status=200)
     
             
