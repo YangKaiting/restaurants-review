@@ -23,6 +23,8 @@ class Restaurant(models.Model):
 
     id = models.CharField(max_length=20, primary_key=True)
     address = models.CharField(max_length=50)
+    tel = models.CharField(max_length=50, null=True)
+    email = models.CharField(max_length=50, null=True)
 
     # many restaurants to one category
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
@@ -35,6 +37,7 @@ class Restaurant(models.Model):
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
 
     rate = models.IntegerField(default=0)
     description = models.CharField(max_length=255)
@@ -62,9 +65,9 @@ class Comment(models.Model):
 
 
 # 6
-class LikeForComment(models.Model):
-    # similar to composite primary key
+class ActionForComment(models.Model):
     class Meta:
-        verbose_name_plural = "Like For Comments"
+        verbose_name_plural = "Action For Comments"
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    like = models.IntegerField(default=0)
