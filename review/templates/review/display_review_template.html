@@ -1,10 +1,12 @@
+{% load review_extras %}
+
 <div class="card" id="review-section">
     {% for r in reviews %}
     <div class="card-body">
         <div class="row">
             <div class="col-sm-3 col-md-2">
                 <img src="https://image.ibb.co/jw55Ex/def_face.jpg" class="img img-rounded img-fluid" />
-                <p class="text-secondary text-center">15 Minutes Ago</p>
+                <p class="text-secondary text-center">{{r.review.date|time_from_now}}</p>
             </div>
             <div class="col-sm-9 col-md-10">
                 <p>
@@ -20,7 +22,11 @@
                 </p>
 
                 <div class="clearfix"></div>
-                <span class="">{{r.review.rate}} <i class="text-warning fa fa-thumbs-up"></i></span>
+                <span class="">{{r.review.rate}}
+                    {% for i in r.review.rate|times %}
+                    <i class="text-warning fa fa-star"></i>
+                    {% endfor %}
+                </span>
                 <p>{{r.review.description}}</p>
                 <p>
                     <!-- for reply to review -->
@@ -68,53 +74,12 @@
                         <input type="hidden" name="reviewID" id="reviewID" value={{r.review.id}} />
                         <button class="btn text-white btn-danger" name="action" value="like-review"><i
                                 class="fa fa-heart"></i>
-                            Like</button>
+                            {% if r.is_review_liked_by_user %}Unlike{% else %}Like{% endif %}</button>
                     </form>
                 </p>
             </div>
         </div>
-        {% for comment in r.comments_on_review %}
-        <div class="card card-inner">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-sm-3 col-md-2">
-                        <img src="https://image.ibb.co/jw55Ex/def_face.jpg" class="img img-rounded img-fluid" />
-                        <p class="text-secondary text-center">15 Minutes Ago</p>
-                    </div>
-                    <div class="col-sm-9 col-md-10">
-                        <p><a href=""><strong>{{ comment.user }}</strong></a></p>
-                        <p>{{ comment.description }}</p>
-                        <p>
-                            <a class="float-right btn btn-outline-primary ml-2"> <i class="fa fa-reply"></i>
-                                Reply</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <!-- for reply on comments -->
-            <div class="card card-inner" style="margin: 0 15px 15px 45px">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-sm-3 col-md-2">
-                            <img src="https://image.ibb.co/jw55Ex/def_face.jpg" class="img img-rounded img-fluid" />
-                            <p class="text-secondary text-center">15 Minutes Ago</p>
-                        </div>
-                        <div class="col-sm-9 col-md-10">
-                            <p><a href=""><strong>{{ comment.user }}</strong></a></p>
-                            <p>{{ comment.description }}</p>
-                            <p>
-                                <a class="float-right btn btn-outline-primary ml-2"> <i class="fa fa-reply"></i>
-                                    Reply</a>
-                                <!-- <a class="float-right btn text-white btn-danger"> <i class="fa fa-heart"></i> Like</a> -->
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {% empty %}
-        {% endfor %}
+       {% include "review/display_comment_template.html" with comments=r.comments_on_review %}
     </div>
     {% endfor %}
 </div>
