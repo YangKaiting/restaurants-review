@@ -1,5 +1,5 @@
-{% for comment in comments %}
-<div class="card card-inner">
+{% for c in review_comments %}
+<div class="card card-inner" style="margin-top:5px">
     <div class="card-body">
         <div class="row">
             <div class="col-sm-3 col-md-2">
@@ -7,16 +7,70 @@
                 <p class="text-secondary text-center">15 Minutes Ago</p>
             </div>
             <div class="col-sm-9 col-md-10">
-                <p><a href=""><strong>{{ comment.user }}</strong></a></p>
-                <p>{{ comment.description }}</p>
                 <p>
-                    <a class="float-right btn btn-outline-primary ml-2"> <i class="fa fa-reply"></i>
-                        Reply</a>
+                    <a href=""><strong>{{ c.comment.user }}</strong></a>
+                    <span class="float-right" id="refresh-like">{{c.likes_count_for_comment}}
+                        {% if c.is_comment_liked_by_user %}
+                        <i class="text-warning fa fa-heart"></i>
+                        {% else %}
+                        <i class="fa fa-heart"></i>
+                        {% endif %}
+                    </span>                
                 </p>
+                <p>{{ c.comment.description }}</p>
+                <p>
+                        <!-- for reply to comment -->
+                        <div class="" style="margin-top:40px;">
+                            <div class="">
+                                <div class="">
+                                    <div class="text-right">
+                                        <a class="open-sub-comment-box float-right btn btn-outline-primary ml-2"
+                                            id="open-sub-comment-box-{{r.review.id}}" href="#comments-anchor"
+                                            value={{r.review.id}}><i class="fa fa-reply"></i>
+                                            Reply</a>
+                                    </div>
+    
+                                    <div class="row" id="post-sub-comment-box-{{r.review.id}}" style="display:none;">
+                                        <div class="col-md-12">
+                                            <form id="submit-a-sub-comment" accept-charset="UTF-8" action="" method="post">
+                                                {% csrf_token %}
+                                                <input id="review-hidden" name="this-review" value={{r.review.id}}
+                                                    type="hidden">
+                                                <textarea class="form-control animated" cols="50" id="new-sub-comment"
+                                                    style="margin-bottom: 5px" name="sub-comment-description"
+                                                    placeholder="Enter your comment here..." rows="5"></textarea>
+    
+                                                <div class="text-right">
+                                                    <a class="btn btn-danger btn-sm close-comment-box" href="#"
+                                                        id="close-sub-comment-box-{{r.review.id}}" value={{r.review.id}}
+                                                        style="display:none; margin-right: 10px;">
+                                                        <span class="glyphicon glyphicon-remove"></span>Cancel</a>
+    
+                                                    <button class="btn btn-success btn-sm" name="action" type="submit"
+                                                        value="submit-sub-comment-for-review-{{r.review.id}}">Submit</button>
+    
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+    
+    
+                        <!-- for liking a comment -->
+                        <form class="like-a-comment float-right" id="like-a-comment-{{c.comment.id}}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="commentID" id="commentID" value={{c.comment.id}} />
+                            <button class="btn text-white btn-danger" name="action" value="like-comment"><i
+                                    class="fa fa-heart"></i>
+                                {% if c.is_comment_liked_by_user %}Unlike{% else %}Like{% endif %}</button>
+                        </form>
+                    </p>
             </div>
         </div>
     </div>
-    <!-- for reply on comments -->
+    <!-- display replies to comment -->
     <div class="card card-inner" style="margin: 0 15px 15px 45px">
         <div class="card-body">
             <div class="row">
@@ -28,8 +82,8 @@
                     <p><a href=""><strong>{{ comment.user }}</strong></a></p>
                     <p>{{ comment.description }}</p>
                     <p>
-                        <a class="float-right btn btn-outline-primary ml-2"> <i class="fa fa-reply"></i>
-                            Reply</a>
+                        <!-- <a class="float-right btn btn-outline-primary ml-2"> <i class="fa fa-reply"></i>
+                            Reply</a> -->
                         <!-- <a class="float-right btn text-white btn-danger"> <i class="fa fa-heart"></i> Like</a> -->
                     </p>
                 </div>
@@ -40,3 +94,69 @@
 
 {% empty %}
 {% endfor %}
+
+<script>
+
+
+        // comment for review 
+    
+    
+        $(document).ready(function () {
+    
+            $('#new-comment').autosize({ append: "\n" });
+    
+            var newComment = $('#new-comment');
+    
+            $('body').on('click', '.open-comment-box', function (e) {
+                let review_id = $(this).attr('value');
+                var commentBox = $('#post-comment-box-' + review_id);
+                var thisOpenCommentBtn = $('#open-comment-box-' + review_id);
+                var thisCloseCommentBtn = $('#close-comment-box-' + review_id);
+                var thisLikeBtn = $('#like-a-review-' + review_id);
+    
+                console.log(e.target.id)
+                e.preventDefault();
+                commentBox.slideDown(400, function () {
+                    $('#new-comment').trigger('autosize.resize');
+                    newComment.focus();
+                });
+                thisOpenCommentBtn.fadeOut(100);
+                thisLikeBtn.fadeOut(100);
+                thisCloseCommentBtn.show();
+            });
+    
+            $('body').on('click', '.close-comment-box', function (e) {
+                let review_id = $(this).attr('value');
+                console.log(review_id)
+                var commentBox = $('#post-comment-box-' + review_id);
+                var thisOpenCommentBtn = $('#open-comment-box-' + review_id);
+                var thisCloseCommentBtn = $('#close-comment-box-' + review_id);
+                var thisLikeBtn = $('#like-a-review-' + review_id);
+    
+                e.preventDefault();
+                commentBox.slideUp(300, function () {
+                    newComment.focus();
+                    thisOpenCommentBtn.fadeIn(100);
+                    thisLikeBtn.fadeIn(100);
+                });
+                thisCloseCommentBtn.hide();
+            });
+        });
+
+        // like a comment
+        $(document).on('submit', '.like-a-comment', function (e) {
+            console.log("check is it in",$(this).find('input[name=commentID]').val());
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: '/update-comment-likes/',
+                data: {
+                    commentID: $(this).find('input[name=commentID]').val(),
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+                },
+                success: function () {
+                    $('#review-section').load(" #review-section");
+                }
+            });
+        });
+    </script>

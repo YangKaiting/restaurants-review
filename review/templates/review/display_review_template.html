@@ -79,7 +79,7 @@
                 </p>
             </div>
         </div>
-       {% include "review/display_comment_template.html" with comments=r.comments_on_review %}
+       {% include "review/display_comment_template.html" with review_comments=r.comments_on_review %}
     </div>
     {% endfor %}
 </div>
@@ -102,9 +102,7 @@
         });
     });
 
-    $(document).on('submit', '#submit-a-comment', function (e) {
-        let review_id = $(this).attr('value');
-        console.log("okok", review_id)
+    $(document).on('submit', '#submit-a-comment', function (e) {       
         e.preventDefault();
         $.ajax({
             type: 'POST',

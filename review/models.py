@@ -60,7 +60,7 @@ class Comment(models.Model):
 
     # many comments to one user
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-
+    date = models.DateTimeField(auto_now_add=True)
     description = models.CharField(max_length=255)
 
 
@@ -70,4 +70,4 @@ class ActionForComment(models.Model):
         verbose_name_plural = "Action For Comments"
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    like = models.IntegerField(default=0)
+    like = models.BooleanField(default=False)

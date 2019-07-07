@@ -11,6 +11,7 @@ urlpatterns = [
     re_path(r'^category/(?P<cat_id>\d+)/(?P<rest_id>.+?)/$', views.restaurant_content, name='restaurant-content'),
     path('search_result/', views.search_result, name='search-result'),
     re_path(r'^update-review-likes/$',views.update_review_likes, name="update-review-likes"),
+    re_path(r'^update-comment-likes/$',views.update_comment_likes, name="update-comment-likes"),
     re_path(r'^submit-a-review/$',views.submit_a_review, name="submit-a-review"),
     re_path(r'^comment-on-review/$',views.comment_on_review, name="comment-on-review"),
 ]
