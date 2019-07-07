@@ -25,29 +25,29 @@
                             <div class="">
                                 <div class="text-right">
                                     <a class="open-sub-comment-box float-right btn btn-outline-primary ml-2"
-                                        id="open-sub-comment-box-{{r.review.id}}" href="#comments-anchor"
-                                        value={{r.review.id}}><i class="fa fa-reply"></i>
+                                        id="open-sub-comment-box-{{c.comment.id}}" href="#comments-anchor"
+                                        value={{c.comment.id}}><i class="fa fa-reply"></i>
                                         Reply</a>
                                 </div>
 
-                                <div class="row" id="post-sub-comment-box-{{r.review.id}}" style="display:none;">
+                                <div class="row" id="post-sub-comment-box-{{c.comment.id}}" style="display:none;">
                                     <div class="col-md-12">
                                         <form id="submit-a-sub-comment" accept-charset="UTF-8" action="" method="post">
                                             {% csrf_token %}
-                                            <input id="review-hidden" name="this-review" value={{r.review.id}}
+                                            <input id="comment-hidden" name="this-comment" value={{c.comment.id}}
                                                 type="hidden">
                                             <textarea class="form-control animated" cols="50" id="new-sub-comment"
                                                 style="margin-bottom: 5px" name="sub-comment-description"
                                                 placeholder="Enter your comment here..." rows="5"></textarea>
 
                                             <div class="text-right">
-                                                <a class="btn btn-danger btn-sm close-comment-box" href="#"
-                                                    id="close-sub-comment-box-{{r.review.id}}" value={{r.review.id}}
+                                                <a class="btn btn-danger btn-sm close-sub-comment-box" href="#"
+                                                    id="close-sub-comment-box-{{c.comment.id}}" value={{c.comment.id}}
                                                     style="display:none; margin-right: 10px;">
                                                     <span class="glyphicon glyphicon-remove"></span>Cancel</a>
 
                                                 <button class="btn btn-success btn-sm" name="action" type="submit"
-                                                    value="submit-sub-comment-for-review-{{r.review.id}}">Submit</button>
+                                                    value="submit-sub-comment-for-review-{{c.comment.id}}">Submit</button>
 
                                             </div>
                                         </form>
@@ -71,7 +71,8 @@
         </div>
     </div>
     <!-- display replies to comment -->
-    <!-- <div class="card card-inner" style="margin: 0 15px 15px 45px">
+    {% for sub_c in c.comments_on_comment %}
+    <div class="card card-inner" style="margin: 0 15px 15px 45px">
         <div class="card-body">
             <div class="row">
                 <div class="col-sm-3 col-md-2">
@@ -79,17 +80,18 @@
                     <p class="text-secondary text-center">15 Minutes Ago</p>
                 </div>
                 <div class="col-sm-9 col-md-10">
-                    <p><a href=""><strong>{{ comment.user }}</strong></a></p>
-                    <p>{{ comment.description }}</p>
+                    <p><a href=""><strong>{{ sub_c.user }}</strong></a></p>
+                    <p>{{ sub_c.description }}</p>
                     <p>
-                        <a class="float-right btn btn-outline-primary ml-2"> <i class="fa fa-reply"></i>
+                        <!-- <a class="float-right btn btn-outline-primary ml-2"> <i class="fa fa-reply"></i>
                             Reply</a>
-                        <a class="float-right btn text-white btn-danger"> <i class="fa fa-heart"></i> Like</a>
+                        <a class="float-right btn text-white btn-danger"> <i class="fa fa-heart"></i> Like</a> -->
                     </p>
                 </div>
             </div>
         </div>
-    </div> -->
+    </div>
+    {% endfor %}
 </div>
 
 {% empty %}
@@ -160,4 +162,65 @@
             });
             console.log("check is it in",$(this).find('input[name=commentID]').val());
         });
+
+        //sub-comment box
+        $(document).ready(function () {
+
+            $('#new-sub-comment').autosize({ append: "\n" });
+    
+            var newSubComment = $('#new-sub-comment');
+    
+            $('body').on('click', '.open-sub-comment-box', function (e) {
+                let comment_id = $(this).attr('value');
+                var commentBox = $('#post-sub-comment-box-' + comment_id );
+                var thisOpenCommentBtn = $('#open-sub-comment-box-' + comment_id );
+                var thisCloseCommentBtn = $('#close-sub-comment-box-' + comment_id );
+                var thisLikeBtn = $('#like-a-comment-' + comment_id );
+    
+                console.log(e.target.id)
+                e.preventDefault();
+                commentBox.slideDown(400, function () {
+                    $('#new-sub-comment').trigger('autosize.resize');
+                    newSubComment.focus();
+                });
+                thisOpenCommentBtn.fadeOut(100);
+                thisLikeBtn.fadeOut(100);
+                thisCloseCommentBtn.show();
+            });
+    
+            $('body').on('click', '.close-sub-comment-box', function (e) {
+                let comment_id  = $(this).attr('value');
+                console.log(comment_id )
+                var commentBox = $('#post-sub-comment-box-' + comment_id );
+                var thisOpenCommentBtn = $('#open-sub-comment-box-' + comment_id );
+                var thisCloseCommentBtn = $('#close-sub-comment-box-' + comment_id );
+                var thisLikeBtn = $('#like-a-comment-' + comment_id );
+    
+                e.preventDefault();
+                commentBox.slideUp(300, function () {
+                    newSubComment.focus();
+                    thisOpenCommentBtn.fadeIn(100);
+                    thisLikeBtn.fadeIn(100);
+                });
+                thisCloseCommentBtn.hide();
+            });
+        });
+
+
+        $(document).on('submit', '#submit-a-sub-comment', function (e) {       
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: '/comment-on-comment/',
+                data: {
+                    description: $(this).find('textarea[name=sub-comment-description]').val(),
+                    comment: $(this).find('input[name=this-comment]').val(),
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+                },
+                success: function () {
+                    $('#review-section').load(location.href + " #review-section");
+                }
+            });
+        });
+
     </script>

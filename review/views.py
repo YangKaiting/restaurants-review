@@ -163,6 +163,24 @@ def comment_on_review(request):
     return JsonResponse(context_data, status=200)
 
 
+def comment_on_comment(request):
+    if request.method == 'POST':
+        this_comment=Comment.objects.get(id=request.POST.get('comment'))
+        print('what', this_comment)
+        if ActionForComment.objects.filter(comment=this_comment, user=request.user).exists():
+            obj = ActionForComment.objects.get(comment=this_comment,user=request.user)   
+            obj.description = request.POST.get('description')
+            obj.save()                                 
+        else:            
+            ActionForComment.objects.create(
+                user=request.user,
+                description = request.POST.get('description'),
+                comment = this_comment,
+            )
+    context_data = {}
+    return JsonResponse(context_data, status=200)
+
+
 def search_result(request):
     template = 'review/search_result.html'  
 

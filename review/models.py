@@ -71,3 +71,4 @@ class ActionForComment(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     like = models.BooleanField(default=False)
+    description = models.CharField(max_length=255)
